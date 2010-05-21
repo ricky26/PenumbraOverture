@@ -322,11 +322,13 @@ bool cHudModel_WeaponMelee::OnMouseMove(const cVector2f &avMovement)
 		{
 			//If right key is down enable looking.
 			cInput *pInput = mpInit->mpGame->GetInput();
-			if(pInput->IsTriggerd("Examine")) return true;
+			// TODO: fix this! -- Ricky26
+//			if(pInput->IsTriggerd("Examine")) return true;
 			
 			if(mpInit->mbSimpleWeaponSwing)
 			{
-				if(mlCurrentAttack != 2 && pInput->IsTriggerd("Interact")==false)
+				// TODO: Fix this! -- Ricky26
+/*				if(mlCurrentAttack != 2 && pInput->IsTriggerd("Interact")==false)
 				{
 					mfTime = 0.0f;
 					mfMoveSpeed = 1/mvAttacks[mlCurrentAttack].mfChargeLength;
@@ -338,7 +340,7 @@ bool cHudModel_WeaponMelee::OnMouseMove(const cVector2f &avMovement)
 					mlCurrentAttack = 2;
 					mlAttackState = 2;
 				}
-				else
+				else*/
 				{
 					mlAttackState = 4;
 				}

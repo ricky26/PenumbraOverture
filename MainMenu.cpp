@@ -1930,7 +1930,7 @@ public:
 // OPTIONS KEY CONFIG
 //////////////////////////////////////////////////////////////////////////
 
-class cMainMenuWidget_KeyButton : public cMainMenuWidget_Button
+/*class cMainMenuWidget_KeyButton : public cMainMenuWidget_Button
 {
 public:
 	cMainMenuWidget_KeyButton(cInit *apInit, const cVector3f &avPos, const tWString& asText,cVector2f avFontSize, 
@@ -1992,12 +1992,12 @@ public:
 private:
 	cMainMenuWidget_Text *mpKeyWidget;
 	tString msActionName;
-};
+};*/
 
 //------------------------------------------------------------
 
 
-class cMainMenuWidget_KeyReset : public cMainMenuWidget_Button
+/*class cMainMenuWidget_KeyReset : public cMainMenuWidget_Button
 {
 public:
 	cMainMenuWidget_KeyReset(cInit *apInit, const cVector3f &avPos, const tWString& asText,cVector2f avFontSize, 
@@ -2017,7 +2017,7 @@ public:
 private:
 	cMainMenuWidget_Text *mpKeyWidget;
 	tString msActionName;
-};
+};*/
 
 //------------------------------------------------------------
 
@@ -2228,7 +2228,8 @@ void cMainMenu::Update(float afTimeStep)
 		if(CheckForInput())
 		{
 			//Log("Creating action '%s'\n",msCurrentActionName.c_str());
-			iAction *pAction = pInput->InputToAction(msCurrentActionName);
+			// TODO: Fix this! -- Ricky26
+			/*iAction *pAction = pInput->InputToAction(msCurrentActionName);
 			
 			mpCurrentActionText->msText = kTranslate("ButtonNames",pAction->GetInputName());
 			
@@ -2249,7 +2250,7 @@ void cMainMenu::Update(float afTimeStep)
 				mpInit->mpMainMenu->ResetWidgets(eMainMenuState_OptionsKeySetupMisc);
 			}
 
-			mpCurrentActionText = NULL;
+			mpCurrentActionText = NULL;*/
 			Log("Reset check for input!\n");
 		}
 		
@@ -3148,7 +3149,7 @@ void cMainMenu::CreateWidgets()
 		//Back
 		vPos.y += 150;
 		vPos.x += 130;
-		AddWidgetToState(state,hplNew( cMainMenuWidget_KeyReset,(mpInit,vPos,kTranslate("MainMenu","Reset to defaults"),23,eFontAlign_Center)) );
+//		AddWidgetToState(state,hplNew( cMainMenuWidget_KeyReset,(mpInit,vPos,kTranslate("MainMenu","Reset to defaults"),23,eFontAlign_Center)) );
 		vPos.y += 32;
 		AddWidgetToState(state,hplNew( cMainMenuWidget_Button,(mpInit,vPos,kTranslate("MainMenu","Back"),eMainMenuState_OptionsControls,23,eFontAlign_Center)) );
 	}
@@ -3166,7 +3167,7 @@ void cMainMenu::CreateWidgets()
 	vPos.y += 46;
 	vPos.x += 15;
 
-	pTempTextWidget = hplNew( cMainMenuWidget_Text,(mpInit,vPos+cVector3f(fKeyTextXAdd,0,0),_W(""),18,eFontAlign_Left) );
+/*	pTempTextWidget = hplNew( cMainMenuWidget_Text,(mpInit,vPos+cVector3f(fKeyTextXAdd,0,0),_W(""),18,eFontAlign_Left) );
 	AddWidgetToState(eMainMenuState_OptionsKeySetupMove,pTempTextWidget); 
 	pWidgetKeyButton = hplNew( cMainMenuWidget_KeyButton,(mpInit,vPos,kTranslate("MainMenu","Forward:"),
 													18,eFontAlign_Left,pTempTextWidget,"Forward") );
@@ -3302,7 +3303,7 @@ void cMainMenu::CreateWidgets()
 	pTempTextWidget = hplNew( cMainMenuWidget_Text,(mpInit,vPos+cVector3f(fKeyTextXAdd,0,0),_W(""),18,eFontAlign_Left) );
 	AddWidgetToState(eMainMenuState_OptionsKeySetupMisc,pTempTextWidget); 
 	AddWidgetToState(eMainMenuState_OptionsKeySetupMisc,hplNew( cMainMenuWidget_KeyButton,(mpInit,vPos,kTranslate("MainMenu","Glowstick:"),
-		18,eFontAlign_Left,pTempTextWidget,"GlowStick")) ); 
+		18,eFontAlign_Left,pTempTextWidget,"GlowStick")) ); */
 
 	///////////////////////////////////
 	// Options Game

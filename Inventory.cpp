@@ -261,8 +261,9 @@ void cInventorySlot::OnMouseOver()
 			{
 				tWString wsName = pCurrentItem->GetGameName();
 
-				iAction *pAction = mpInit->mpGame->GetInput()->GetAction(sShortcutAction);
-				if(pAction) wsName = wsName + _W(" (")+ cString::To16Char(pAction->GetInputName()) +_W(")");
+				// TODO: Fix this! -- Ricky26
+//				iAction *pAction = mpInit->mpGame->GetInput()->GetAction(sShortcutAction);
+//				if(pAction) wsName = wsName + _W(" (")+ cString::To16Char(pAction->GetInputName()) +_W(")");
 
 				mpInit->mpInventory->SetItemName(wsName);
 			}
@@ -292,9 +293,10 @@ void cInventorySlot::OnMouseOver()
 			if(sShortcutAction != "")
 			{
 				tWString wsName = mpItem->GetGameName();
-
-				iAction *pAction = mpInit->mpGame->GetInput()->GetAction(sShortcutAction);
-				if(pAction) wsName = wsName + _W(" (")+ cString::To16Char(pAction->GetInputName()) +_W(")");
+				
+				// TODO: Fix this! -- Ricky26
+//				iAction *pAction = mpInit->mpGame->GetInput()->GetAction(sShortcutAction);
+//				if(pAction) wsName = wsName + _W(" (")+ cString::To16Char(pAction->GetInputName()) +_W(")");
 
 				mpInit->mpInventory->SetItemName(wsName);
 			}

@@ -92,7 +92,9 @@ SCRIPT_DEFINE_FUNC_2(void, AddToTempStringTrans, string,string)
 static void __stdcall AddToTempStringAction(std::string asAction)
 {
 	cInit *mpInit = gpInit;
-	iAction *pAction = gpInit->mpGame->GetInput()->GetAction(asAction);
+
+	// TODO: Fix this! -- Ricky26
+/*	iAction *pAction = gpInit->mpGame->GetInput()->GetAction(asAction);
 	if(pAction)
 	{
 		tWString sString = kTranslate("ButtonNames",pAction->GetInputName());
@@ -101,7 +103,7 @@ static void __stdcall AddToTempStringAction(std::string asAction)
 		else 
 			gsTempString += cString::To16Char(pAction->GetInputName());
 	}
-	else
+	else*/
 	{
 		gsTempString += kTranslate("ButtonNames", "None");
 	}
@@ -149,11 +151,12 @@ SCRIPT_DEFINE_FUNC(void, ClearSavedMaps)
 
 static std::string __stdcall GetActionKeyString(std::string asAction)
 {
-	iAction *pAction = gpInit->mpGame->GetInput()->GetAction(asAction);
+	// TODO: Fix this! -- Ricky26
+	/*iAction *pAction = gpInit->mpGame->GetInput()->GetAction(asAction);
 	if(pAction)
 	{
 		return pAction->GetInputName();
-	}
+	}*/
 	
 	return "ActionNotFound";
 }

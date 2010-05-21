@@ -53,11 +53,13 @@ void cPlayerState_NormalHaptX::OnUpdate(float afTimeStep)
 	/////////////////////////////////////
 	// If run is down, run!!
 	cInput *pInput = mpInit->mpGame->GetInput();
-	if(	pInput->IsTriggerd("Run") && 
+	
+				// TODO: Fix this! -- Ricky26
+	/*if(	pInput->IsTriggerd("Run") && 
 		mpPlayer->GetMoveState() == ePlayerMoveState_Walk)
 	{
 		mpPlayer->ChangeMoveState(ePlayerMoveState_Run);
-	}
+	}*/
 
 	/////////////////////////////////////////////////
 	// Cast ray to see if anything is picked.
@@ -663,13 +665,14 @@ void cPlayerState_UseItemHaptX::OnStartExamine()
 bool cPlayerState_UseItemHaptX::OnAddYaw(float afVal)
 { 
 	cInput *pInput = mpInit->mpGame->GetInput();
-
-	if(pInput->IsTriggerd("LookMode"))
+	
+				// TODO: Fix this! -- Ricky26
+	/*if(pInput->IsTriggerd("LookMode"))
 	{
 		mpPlayer->GetCamera()->AddYaw( -afVal * 2.0f * mpPlayer->GetLookSpeed());
 		mpPlayer->GetCharacterBody()->SetYaw(mpPlayer->GetCamera()->GetYaw());
 	}
-	else if(mpPlayer->AddCrossHairPos(cVector2f(afVal * 800.0f,0)))
+	else*/ if(mpPlayer->AddCrossHairPos(cVector2f(afVal * 800.0f,0)))
 	{
 		mpPlayer->GetCamera()->AddYaw( -afVal * mpPlayer->GetLookSpeed());
 		mpPlayer->GetCharacterBody()->SetYaw(mpPlayer->GetCamera()->GetYaw());
@@ -681,13 +684,14 @@ bool cPlayerState_UseItemHaptX::OnAddYaw(float afVal)
 bool cPlayerState_UseItemHaptX::OnAddPitch(float afVal)
 {
 	cInput *pInput = mpInit->mpGame->GetInput();
-
-	if(pInput->IsTriggerd("LookMode"))
+	
+				// TODO: Fix this! -- Ricky26
+	/*if(pInput->IsTriggerd("LookMode"))
 	{
 		float fInvert = mpInit->mpButtonHandler->GetInvertMouseY() ? -1.0f : 1.0f;
 		mpPlayer->GetCamera()->AddPitch( -afVal *2.0f*fInvert * mpPlayer->GetLookSpeed());
 	}
-	else if(mpPlayer->AddCrossHairPos(cVector2f(0,afVal * 600.0f)))
+	else*/ if(mpPlayer->AddCrossHairPos(cVector2f(0,afVal * 600.0f)))
 	{
 		mpPlayer->GetCamera()->AddPitch( -afVal * mpPlayer->GetLookSpeed());
 	}

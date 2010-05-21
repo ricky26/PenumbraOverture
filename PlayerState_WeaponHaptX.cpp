@@ -63,11 +63,13 @@ void cPlayerState_ThrowHaptX::OnUpdate(float afTimeStep)
 	/////////////////////////////////////
 	// If run is down, run!!
 	cInput *pInput = mpInit->mpGame->GetInput();
-	if(	pInput->IsTriggerd("Run") && 
+	
+				// TODO: Fix this! -- Ricky26
+	/*if(	pInput->IsTriggerd("Run") && 
 		mpPlayer->GetMoveState() == ePlayerMoveState_Walk)
 	{
 		mpPlayer->ChangeMoveState(ePlayerMoveState_Run);
-	}
+	}*/
 
 	/////////////////////////////////////////////////
 	// Cast ray to see if anything is picked.
@@ -343,11 +345,12 @@ void cPlayerState_WeaponMeleeHaptX::OnUpdate(float afTimeStep)
 	/////////////////////////////////////
 	// If run is down, run!!
 	cInput *pInput = mpInit->mpGame->GetInput();
-	if(	pInput->IsTriggerd("Run") && 
+				// TODO: Fix this! -- Ricky26
+	/*if(	pInput->IsTriggerd("Run") && 
 		mpPlayer->GetMoveState() == ePlayerMoveState_Walk)
 	{
 		mpPlayer->ChangeMoveState(ePlayerMoveState_Run);
-	}
+	}*/
 
 	///////////////////////////////////////////////
 	// Calculate proxy movement speed

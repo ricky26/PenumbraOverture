@@ -116,11 +116,75 @@ static cButtonHandlerAction gvDefaultActions[] = {
 
 //-----------------------------------------------------------------------
 
-cButtonHandler::cButtonHandler(cInit *apInit)  : iUpdateable("ButtonHandler")
+#define actionGroup_magic apInit->mpGame->GetInput()->GetActionGroup()
+cButtonHandler::cButtonHandler(cInit *apInit)  : iUpdateable("ButtonHandler"),
+	mActionQuit("Quit", actionGroup_magic),
+
+	mActionForward("Forward", actionGroup_magic),
+	mActionBackward("Backward", actionGroup_magic),
+	mActionLeft("Left", actionGroup_magic),
+	mActionRight("Right", actionGroup_magic),
+	mActionLeanLeft("LeanLeft", actionGroup_magic),
+	mActionLeanRight("LeanRight", actionGroup_magic),
+	mActionLookUp("LookUp", actionGroup_magic),
+	mActionLookDown("LookDown", actionGroup_magic),
+	mActionLookLeft("LookLeft", actionGroup_magic),
+	mActionLookRight("LookRight", actionGroup_magic),
+
+	mActionLookX("LookX", actionGroup_magic),
+	mActionLookY("LookY", actionGroup_magic),
+	mActionMoveX("MoveX", actionGroup_magic),
+	mActionMoveY("MoveY", actionGroup_magic),
+	mActionLean("Lean", actionGroup_magic),
+
+	mActionRun("Run", actionGroup_magic),
+	mActionJump("Jump", actionGroup_magic),
+	mActionCrouch("Crouch", actionGroup_magic),
+	mActionInteractMode("InteractMode", actionGroup_magic),
+	mActionLookMode("LookMode", actionGroup_magic),
+	mActionHolster("Holster", actionGroup_magic),
+	mActionExamine("Examine", actionGroup_magic),
+	mActionInteract("Interact", actionGroup_magic),
+	mActionInventory("Inventory", actionGroup_magic),
+	mActionNotebook("Notebook", actionGroup_magic),
+	mActionPersonalNotes("PersonalNotes", actionGroup_magic),
+	mActionFlashlight("Flashlight", actionGroup_magic),
+	mActionGlowStick("GlowStick", actionGroup_magic),
+	mActionEnter("Enter", actionGroup_magic),
+	mActionEscape("Escape", actionGroup_magic),
+	mActionClick("Click", actionGroup_magic),
+	mActionRightClick("RightClick", actionGroup_magic),
+	mActionScrollUp("ScrollUp", actionGroup_magic),
+	mActionScrollDown("ScrollDown", actionGroup_magic),
+	mActionOne("One", actionGroup_magic),
+	mActionTwo("Two", actionGroup_magic),
+	mActionThree("Three", actionGroup_magic),
+	mActionFour("Four", actionGroup_magic),
+	mActionFive("Five", actionGroup_magic),
+	mActionSix("Six", actionGroup_magic),
+	mActionSeven("Seven", actionGroup_magic),
+	mActionEight("Eight", actionGroup_magic),
+	mActionNine("Nine", actionGroup_magic),
+	mActionResetGame("ResetGame", actionGroup_magic),
+	mActionSaveGame("SaveGame", actionGroup_magic),
+	mActionLoadGame("LoadGame", actionGroup_magic),
+	mActionScreenshot("Screenshot", actionGroup_magic),
+	mActionPrintLog("PrintLog", actionGroup_magic)
+
+#undef actionGroup_magic
 {
 	mpInit = apInit;
 
 	mpInput = mpInit->mpGame->GetInput();
+	iKeyboard *kbd = mpInput->GetKeyboard();
+	iMouse *ms = mpInput->GetMouse();
+
+	// MAGICAL HARD-CODED INPUT MAP! -- Ricky26
+	//mActionQuit.Bind(kbd->GetButton(eKey_q));
+	//mActionClick.Bind(ms->GetMouseButton(0));
+	//mActionRightClick.Bind(ms->GetMouseButton(1));
+	//mActionEscape.Bind(kbd->GetButton(eKey_ESCAPE));
+
 	mpLowLevelGraphics = mpInit->mpGame->GetGraphics()->GetLowLevel();
 	if(mpInit->mbHasHaptics)
 		mpLowLevelHaptic = mpInit->mpGame->GetHaptic()->GetLowLevel();
@@ -130,7 +194,21 @@ cButtonHandler::cButtonHandler(cInit *apInit)  : iUpdateable("ButtonHandler")
 	
 	mState = eButtonHandlerState_Game;
 
-	mlNumOfActions =0;
+	// LOAD LAYOUT
+	tWString sPersonalDir = GetSystemSpecialPath(eSystemPath_Personal);
+	if(	cString::GetLastCharW(sPersonalDir) != _W("/") && 
+		cString::GetLastCharW(sPersonalDir) != _W("\\"))
+	{
+		sPersonalDir += _W("/");
+	}
+
+	// CREATE NEEDED DIRS /////////////////////
+	if(!mpInput->LoadLayout(sPersonalDir + PERSONAL_RELATIVEROOT PERSONAL_RELATIVEGAME _W("layout.xml")))
+	{
+		mpInput->LoadLayout(_W("config/layout.xml"));
+	}
+
+	/*mlNumOfActions =0;
 
 	// INIT ALL ACTIONS USED
 	cButtonHandlerAction *pBHAction = &gvDefaultActions[0];
@@ -150,10 +228,10 @@ cButtonHandler::cButtonHandler(cInit *apInit)  : iUpdateable("ButtonHandler")
 			Warning("Couldn't create action from '%s' and %d\n",pBHAction->msType.c_str(),
 																pBHAction->mlVal);
 		}
-		
+
 		++pBHAction;
 		++mlNumOfActions;
-	}
+	}*/
 
 
 	// LOAD SETTINGS
@@ -200,17 +278,28 @@ void cButtonHandler::OnPostSceneDraw()
 	}
 }
 
+float float_clamp(float v, float a=-1, float b=1)
+{
+	if(v < a)
+		return a;
+	
+	if(v > b)
+		return b;
+
+	return v;
+}
+
 void cButtonHandler::Update(float afTimeStep)
 {
 	static bool bLockState = true;
 	///////////////////////////////////
 	// GLOBAL Key Strokes
 	///////////////////////////////////
-	if(mpInput->BecameTriggerd("QuitGame"))
+	if(mActionQuit.BecameTriggered())
 	{
 		mpInit->mpGame->Exit();
 	}
-	if(mpInput->BecameTriggerd("Screenshot"))
+	if(mActionScreenshot.BecameTriggered())
 	{
 		int lCount = 1;
 		tString sFileName = "screenshot000.bmp";
@@ -226,23 +315,26 @@ void cButtonHandler::Update(float afTimeStep)
 
 		mpInit->mpGame->GetGraphics()->GetLowLevel()->SaveScreenToBMP(sFileName);
 	}
-	if(mpInput->BecameTriggerd("LockInput"))
+
+	// TODO: WTH is this? -- Ricky26
+	/*if(mpInput->BecameTriggerd("LockInput"))
 	{
 #ifndef WIN32
 		bLockState = !bLockState;
 		mpInit->mpGame->GetInput()->GetLowLevel()->LockInput(bLockState);
 #endif
-	}
+	}*/
+
 	///////////////////////////////////
 	// DEMO END TEXT
 	///////////////////////////////////
 	if(mState == eButtonHandlerState_DemoEndText)
 	{
-		if(	mpInput->BecameTriggerd("Escape"))	
+		if(mActionEscape.BecameTriggered())	
 			mpInit->mpDemoEndText->OnButtonDown();
-		if(mpInput->BecameTriggerd("LeftClick"))
+		if(mActionClick.BecameTriggered())
 			mpInit->mpDemoEndText->OnMouseDown(eMButton_Left);
-		if(mpInput->BecameTriggerd("RightClick"))
+		if(mActionRightClick.BecameTriggered())
 			mpInit->mpDemoEndText->OnMouseDown(eMButton_Right);
 	}
 	///////////////////////////////////
@@ -250,11 +342,11 @@ void cButtonHandler::Update(float afTimeStep)
 	///////////////////////////////////
 	else if(mState == eButtonHandlerState_Credits)
 	{
-		if(	mpInput->BecameTriggerd("Escape"))	
+		if(mActionEscape.BecameTriggered())	
 			mpInit->mpCredits->OnButtonDown();
-		if(mpInput->BecameTriggerd("LeftClick"))
+		if(mActionClick.BecameTriggered())
 			mpInit->mpCredits->OnMouseDown(eMButton_Left);
-		if(mpInput->BecameTriggerd("RightClick"))
+		if(mActionRightClick.BecameTriggered())
 			mpInit->mpCredits->OnMouseDown(eMButton_Right);
 	}
 	///////////////////////////////////
@@ -262,11 +354,11 @@ void cButtonHandler::Update(float afTimeStep)
 	///////////////////////////////////
 	else if(mState == eButtonHandlerState_PreMenu)
 	{
-		if(	mpInput->BecameTriggerd("Escape"))	
+		if(mActionEscape.BecameTriggered())	
 			mpInit->mpPreMenu->OnButtonDown();
-		if(mpInput->BecameTriggerd("LeftClick"))
+		if(mActionClick.BecameTriggered())
 			mpInit->mpPreMenu->OnMouseDown(eMButton_Left);
-		if(mpInput->BecameTriggerd("RightClick"))
+		if(mActionRightClick.BecameTriggered())
 			mpInit->mpPreMenu->OnMouseDown(eMButton_Right);
 	}
 	///////////////////////////////////
@@ -274,9 +366,9 @@ void cButtonHandler::Update(float afTimeStep)
 	///////////////////////////////////
 	else if(mState == eButtonHandlerState_MapLoadText)
 	{
-		if(	mpInput->BecameTriggerd("Escape") ||
-			mpInput->BecameTriggerd("RightClick") ||
-			mpInput->BecameTriggerd("LeftClick"))
+		if(mActionEscape.BecameTriggered() ||
+			mActionClick.BecameTriggered() ||
+			mActionRightClick.BecameTriggered())
 		{
 			mpInit->mpMapLoadText->SetActive(false);
 		}
@@ -286,39 +378,54 @@ void cButtonHandler::Update(float afTimeStep)
 	///////////////////////////////////
 	else if(mState == eButtonHandlerState_MainMenu)
 	{
-		if(mpInput->BecameTriggerd("Escape"))
+		if(mActionEscape.BecameTriggered())
 		{
 			mpInit->mpMainMenu->Exit();
 		}
 
-		if(	mpInput->BecameTriggerd("RightClick") ||
-			(mpInit->mbHasHaptics && mpInput->BecameTriggerd("MouseClickRight")) )
+		if(mActionRightClick.BecameTriggered())
 		{
 			mpInit->mpMainMenu->OnMouseDown(eMButton_Right);
-			mpInput->BecameTriggerd("Examine");
+			mActionExamine.Trigger();
 		}
-		if(mpInput->WasTriggerd("RightClick"))
+		if(mActionRightClick.WasTriggered())
 		{
 			mpInit->mpMainMenu->OnMouseUp(eMButton_Right);
 		}
-		if(mpInput->DoubleTriggerd("RightClick",0.15f))
+		if(mActionRightClick.DoubleTriggered(0.15f))
 		{
 			mpInit->mpMainMenu->OnMouseDoubleClick(eMButton_Right);
 		}
 
-		if(	mpInput->BecameTriggerd("LeftClick") || 
-			(mpInit->mbHasHaptics && mpInput->BecameTriggerd("MouseClick")) )
+		if(mActionClick.BecameTriggered())
 		{
 			mpInit->mpMainMenu->OnMouseDown(eMButton_Left);
-			mpInput->BecameTriggerd("Interact");
+			mActionInteract.Trigger();
 		}
-		if(mpInput->WasTriggerd("LeftClick"))
+		if(mActionClick.WasTriggered())
 		{
 			mpInit->mpMainMenu->OnMouseUp(eMButton_Left);
 		}
-		if(mpInput->DoubleTriggerd("LeftClick",0.15f))
+		if(mActionClick.DoubleTriggered(0.15f))
 		{
 			mpInit->mpMainMenu->OnMouseDoubleClick(eMButton_Left);
+		}
+
+		if(mActionLookUp.IsTriggered())
+		{
+			mpInit->mpMainMenu->AddMousePos(cVector2f(0, -10));
+		}
+		if(mActionLookDown.IsTriggered())
+		{
+			mpInit->mpMainMenu->AddMousePos(cVector2f(0, 10));
+		}
+		if(mActionLookLeft.IsTriggered())
+		{
+			mpInit->mpMainMenu->AddMousePos(cVector2f(-10, 0));
+		}
+		if(mActionLookRight.IsTriggered())
+		{
+			mpInit->mpMainMenu->AddMousePos(cVector2f(10, 0));
 		}
 
 		if(mpInit->mbHasHaptics)
@@ -331,7 +438,7 @@ void cButtonHandler::Update(float afTimeStep)
 		else
 		{
 			/// Mouse Movement
-			cVector2f vRel = mpInput->GetMouse()->GetRelPosition();
+			cVector2f vRel = mpInput->GetMouse()->GetRelPosition() + cVector2f(mActionLookX.TriggeredAmount(), mActionLookY.TriggeredAmount());
 			mpInit->mpMainMenu->AddMousePos(vRel * mfMouseSensitivity);
 		}
 		
@@ -341,7 +448,7 @@ void cButtonHandler::Update(float afTimeStep)
 	///////////////////////////////////
 	else if(mState == eButtonHandlerState_Intro)
 	{
-		if(mpInput->BecameTriggerd("Escape"))
+		if(mActionEscape.BecameTriggered())
 		{
 			mpInit->mpIntroStory->Exit();
 		}
@@ -353,23 +460,23 @@ void cButtonHandler::Update(float afTimeStep)
 	{
 		///////////////////////////////////////
 		// Global ////////////////////
-		/*if(mpInput->BecameTriggerd("ResetGame"))
-		{
-			mpInit->ResetGame(true);
-			mpInit->mpMapHandler->Load(	mpInit->msStartMap,mpInit->msStartLink);
-		}*/
+		//if(mpInput->BecameTriggerd("ResetGame"))
+		//{
+		//	mpInit->ResetGame(true);
+		//	mpInit->mpMapHandler->Load(	mpInit->msStartMap,mpInit->msStartLink);
+		//}
 		if(mpInit->mbAllowQuickSave)
 		{
-			if(mpInput->BecameTriggerd("SaveGame"))
+			if(mActionSaveGame.BecameTriggered())
 			{
 				mpInit->mpSaveHandler->AutoSave(_W("auto"),5);
 			}
-			if(mpInput->BecameTriggerd("LoadGame"))
+			if(mActionSaveGame.BecameTriggered())
 			{
 				mpInit->mpSaveHandler->AutoLoad(_W("auto"));
 			}
 		}
-		if(mpInput->BecameTriggerd("PrintLog"))
+		if(mActionPrintLog.BecameTriggered())
 		{
 			Log("-------------- START RENDERING LOG ------------------------\n");
 			mpInit->mpGame->GetGraphics()->GetRenderer3D()->SetDebugFlags(eRendererDebugFlag_LogRendering);
@@ -380,26 +487,43 @@ void cButtonHandler::Update(float afTimeStep)
 		// Death menu ////////////////////
 		if(mpInit->mpDeathMenu->IsActive())
 		{
-			if(mpInput->BecameTriggerd("Escape"))
+			if(mActionEscape.BecameTriggered())
 			{
 				mpInit->mpGame->GetUpdater()->Reset();
 				mpInit->mpMainMenu->SetActive(true);
 			}
 
-			if(mpInput->BecameTriggerd("RightClick"))
+			if(mActionRightClick.BecameTriggered())
 			{
 				mpInit->mpDeathMenu->OnMouseDown(eMButton_Right);
-				mpInput->BecameTriggerd("Examine");
+				mActionExamine.Trigger();
 			}
 
-			if(mpInput->BecameTriggerd("LeftClick"))
+			if(mActionClick.BecameTriggered())
 			{
 				mpInit->mpDeathMenu->OnMouseDown(eMButton_Left);
-				mpInput->BecameTriggerd("Interact");
+				mActionInteract.Trigger();
 			}
-			if(mpInput->WasTriggerd("LeftClick"))
+			if(mActionClick.WasTriggered())
 			{
 				mpInit->mpDeathMenu->OnMouseUp(eMButton_Left);
+			}
+
+			if(mActionLookUp.IsTriggered())
+			{
+				mpInit->mpDeathMenu->AddMousePos(cVector2f(0, -10));
+			}
+			if(mActionLookDown.IsTriggered())
+			{
+				mpInit->mpDeathMenu->AddMousePos(cVector2f(0, 10));
+			}
+			if(mActionLookLeft.IsTriggered())
+			{
+				mpInit->mpDeathMenu->AddMousePos(cVector2f(-10, 0));
+			}
+			if(mActionLookRight.IsTriggered())
+			{
+				mpInit->mpDeathMenu->AddMousePos(cVector2f(10, 0));
 			}
 
 			if(mpInit->mbHasHaptics)
@@ -409,7 +533,7 @@ void cButtonHandler::Update(float afTimeStep)
 			else
 			{
 				/// Mouse Movement
-				cVector2f vRel = mpInput->GetMouse()->GetRelPosition();
+				cVector2f vRel = mpInput->GetMouse()->GetRelPosition() + cVector2f(mActionLookX.TriggeredAmount(), mActionLookY.TriggeredAmount());
 				mpInit->mpDeathMenu->AddMousePos(vRel * mfMouseSensitivity);
 			}
 		}
@@ -417,7 +541,7 @@ void cButtonHandler::Update(float afTimeStep)
 		// Death ////////////////////
 		else if(mpPlayer->IsDead())
 		{
-			if(mpInput->BecameTriggerd("Escape"))
+			if(mActionEscape.BecameTriggered())
 			{
 				mpInit->mpMainMenu->SetActive(true);
 			}
@@ -426,23 +550,40 @@ void cButtonHandler::Update(float afTimeStep)
 		// Numerical panel ////////////////////
 		else if(mpInit->mpNumericalPanel->IsActive())
 		{
-			if(mpInput->BecameTriggerd("Inventory") || mpInput->BecameTriggerd("Escape"))
+			if(mActionInventory.BecameTriggered() || mActionEscape.BecameTriggered())
 			{
 				mpInit->mpNumericalPanel->OnExit();
 			}
-			if(mpInput->BecameTriggerd("RightClick"))
+			if(mActionRightClick.BecameTriggered())
 			{
 				mpInit->mpNumericalPanel->OnExit();
 			}
 
-			if(mpInput->BecameTriggerd("LeftClick"))
+			if(mActionClick.BecameTriggered())
 			{
 				mpInit->mpNumericalPanel->OnMouseDown(eMButton_Left);
-				mpInput->BecameTriggerd("Interact");
+				mActionInteract.Trigger();
 			}
-			if(mpInput->WasTriggerd("LeftClick"))
+			if(mActionClick.WasTriggered())
 			{
 				mpInit->mpNumericalPanel->OnMouseUp(eMButton_Left);
+			}
+
+			if(mActionLookUp.IsTriggered())
+			{
+				mpInit->mpNumericalPanel->AddMousePos(cVector2f(0, -10));
+			}
+			if(mActionLookDown.IsTriggered())
+			{
+				mpInit->mpNumericalPanel->AddMousePos(cVector2f(0, 10));
+			}
+			if(mActionLookLeft.IsTriggered())
+			{
+				mpInit->mpNumericalPanel->AddMousePos(cVector2f(-10, 0));
+			}
+			if(mActionLookRight.IsTriggered())
+			{
+				mpInit->mpNumericalPanel->AddMousePos(cVector2f(10, 0));
 			}
 
 			if(mpInit->mbHasHaptics)
@@ -452,7 +593,7 @@ void cButtonHandler::Update(float afTimeStep)
 			else
 			{
 				/// Mouse Movement
-				cVector2f vRel = mpInput->GetMouse()->GetRelPosition();
+				cVector2f vRel = mpInput->GetMouse()->GetRelPosition() + cVector2f(mActionLookX.TriggeredAmount(), mActionLookY.TriggeredAmount());
 				mpInit->mpNumericalPanel->AddMousePos(vRel * mfMouseSensitivity);
 			}
 		}
@@ -460,23 +601,23 @@ void cButtonHandler::Update(float afTimeStep)
 		// Notebook ////////////////////
 		else if(mpInit->mpNotebook->IsActive())
 		{
-			if(mpInput->BecameTriggerd("Inventory") || mpInput->BecameTriggerd("Escape"))
+			if(mActionInventory.BecameTriggered() || mActionEscape.BecameTriggered())
 			{
 				mpInit->mpNotebook->OnExit();
 			}
 			
-			if(mpInput->BecameTriggerd("LeftClick"))
+			if(mActionClick.BecameTriggered())
 			{
 				mpInit->mpNotebook->OnMouseDown(eMButton_Left);
 
-				mpInput->BecameTriggerd("Interact");
+				mActionInteract.Trigger();
 			}
 
-			if(mpInput->BecameTriggerd("NoteBook"))
+			if(mActionNotebook.BecameTriggered())
 			{
 				mpInit->mpNotebook->OnExit();
 			}
-			if(mpInput->BecameTriggerd("PersonalNotes"))
+			if(mActionPersonalNotes.BecameTriggered())
 			{
 				cStateMachine *pStateMachine = mpInit->mpNotebook->GetStateMachine();
 				if(pStateMachine->CurrentState()->GetId() == eNotebookState_TaskList)
@@ -489,6 +630,23 @@ void cButtonHandler::Update(float afTimeStep)
 					pStateMachine->ChangeState(eNotebookState_TaskList);
 				}
 			}
+
+			if(mActionLookUp.IsTriggered())
+			{
+				mpInit->mpNotebook->AddMousePos(cVector2f(0, -10));
+			}
+			if(mActionLookDown.IsTriggered())
+			{
+				mpInit->mpNotebook->AddMousePos(cVector2f(0, 10));
+			}
+			if(mActionLookLeft.IsTriggered())
+			{
+				mpInit->mpNotebook->AddMousePos(cVector2f(-10, 0));
+			}
+			if(mActionLookRight.IsTriggered())
+			{
+				mpInit->mpNotebook->AddMousePos(cVector2f(10, 0));
+			}
 			
 			if(mpInit->mbHasHaptics)
 			{
@@ -497,7 +655,7 @@ void cButtonHandler::Update(float afTimeStep)
 			else
 			{
 				/// Mouse Movement
-				cVector2f vRel = mpInput->GetMouse()->GetRelPosition();
+				cVector2f vRel = mpInput->GetMouse()->GetRelPosition() + cVector2f(mActionLookX.TriggeredAmount(), mActionLookY.TriggeredAmount());
 				mpInit->mpNotebook->AddMousePos(vRel * mfMouseSensitivity);
 			}
 		}
@@ -507,50 +665,67 @@ void cButtonHandler::Update(float afTimeStep)
 		{
 			////////////////////////////
 			//Normal Input
-			if(mpInput->BecameTriggerd("Inventory") || mpInput->BecameTriggerd("Escape"))
+			if(mActionInventory.BecameTriggered() || mActionEscape.BecameTriggered())
 			{
 				mpInit->mpInventory->OnInventoryDown();
 			}
 			
-			if(mpInput->BecameTriggerd("LeftClick"))
+			if(mActionClick.BecameTriggered())
 			{
 				mpInit->mpInventory->OnMouseDown(eMButton_Left);
 
-				mpInput->BecameTriggerd("Interact");
+				mActionInteract.Trigger();
 			}
 			
-			if(mpInput->DoubleTriggerd("LeftClick",0.2f))
+			if(mActionClick.DoubleTriggered(0.2f))
 			{
 				mpInit->mpInventory->OnDoubleClick(eMButton_Left);
 			}
-			if(mpInput->WasTriggerd("LeftClick"))
+			if(mActionClick.WasTriggered())
 			{
 				mpInit->mpInventory->OnMouseUp(eMButton_Left);
 			}
 
 				
-			if(mpInput->BecameTriggerd("RightClick"))
+			if(mActionRightClick.BecameTriggered())
 			{
 				mpInit->mpInventory->OnMouseDown(eMButton_Right);
 				
-				mpInput->BecameTriggerd("Examine");
+				mActionExamine.Trigger();
 			}
-			if(mpInput->WasTriggerd("RightClick"))
+			if(mActionRightClick.WasTriggered())
 			{
 				mpInit->mpInventory->OnMouseUp(eMButton_Right);
 			}
 			
 			//////////////////////////////
 			//Short cut keys
-			if(mpInput->BecameTriggerd("One")) mpInit->mpInventory->OnShortcutDown(0);
-			if(mpInput->BecameTriggerd("Two")) mpInit->mpInventory->OnShortcutDown(1);
-			if(mpInput->BecameTriggerd("Three")) mpInit->mpInventory->OnShortcutDown(2);
-			if(mpInput->BecameTriggerd("Four")) mpInit->mpInventory->OnShortcutDown(3);
-			if(mpInput->BecameTriggerd("Five")) mpInit->mpInventory->OnShortcutDown(4);
-			if(mpInput->BecameTriggerd("Six")) mpInit->mpInventory->OnShortcutDown(5);
-			if(mpInput->BecameTriggerd("Seven")) mpInit->mpInventory->OnShortcutDown(6);
-			if(mpInput->BecameTriggerd("Eight")) mpInit->mpInventory->OnShortcutDown(7);
-			if(mpInput->BecameTriggerd("Nine")) mpInit->mpInventory->OnShortcutDown(8);
+			if(mActionOne.BecameTriggered()) mpInit->mpInventory->OnShortcutDown(0);
+			if(mActionTwo.BecameTriggered()) mpInit->mpInventory->OnShortcutDown(1);
+			if(mActionThree.BecameTriggered()) mpInit->mpInventory->OnShortcutDown(2);
+			if(mActionFour.BecameTriggered()) mpInit->mpInventory->OnShortcutDown(3);
+			if(mActionFive.BecameTriggered()) mpInit->mpInventory->OnShortcutDown(4);
+			if(mActionSix.BecameTriggered()) mpInit->mpInventory->OnShortcutDown(5);
+			if(mActionSeven.BecameTriggered()) mpInit->mpInventory->OnShortcutDown(6);
+			if(mActionEight.BecameTriggered()) mpInit->mpInventory->OnShortcutDown(7);
+			if(mActionNine.BecameTriggered()) mpInit->mpInventory->OnShortcutDown(8);
+
+			if(mActionLookUp.IsTriggered())
+			{
+				mpInit->mpInventory->AddMousePos(cVector2f(0, -10));
+			}
+			if(mActionLookDown.IsTriggered())
+			{
+				mpInit->mpInventory->AddMousePos(cVector2f(0, 10));
+			}
+			if(mActionLookLeft.IsTriggered())
+			{
+				mpInit->mpInventory->AddMousePos(cVector2f(-10, 0));
+			}
+			if(mActionLookRight.IsTriggered())
+			{
+				mpInit->mpInventory->AddMousePos(cVector2f(10, 0));
+			}
 			
 			if(mpInit->mbHasHaptics)
 			{
@@ -560,139 +735,128 @@ void cButtonHandler::Update(float afTimeStep)
 			else
 			{
 				/// Mouse Movement
-				cVector2f vRel = mpInput->GetMouse()->GetRelPosition();
+				cVector2f vRel = mpInput->GetMouse()->GetRelPosition() + cVector2f(mActionLookX.TriggeredAmount(), mActionLookY.TriggeredAmount());
 				mpInit->mpInventory->AddMousePos(vRel * mfMouseSensitivity);
 			}
 		}
-		else 
+		else
 		{
 			bPlayerStateIsActive = true;
 
-			if(mpInput->BecameTriggerd("Escape"))
+			if(mActionEscape.BecameTriggered())
 			{
 				mpInit->mpMainMenu->SetActive(true);
 			}
-			if(mpInput->BecameTriggerd("Hit"))
-			{
-				mpInit->mpPlayer->Damage(20,ePlayerDamageType_BloodSplash);
-			}
-			/*if(mpInput->BecameTriggerd("Log"))
-			{
-				mpInit->mpGame->GetPhysics()->SetDebugLog(!mpInit->mpGame->GetPhysics()->GetDebugLog());
-			}*/
-			if(mpInput->BecameTriggerd("Taunt"))
-			{
-				for(int i=0;i<10; ++i)
-					mpInit->mpGame->GetSound()->GetSoundHandler()->PlayGui("gui_notebook_add_note1",
-																		false,0.01f);
-				/*cVector3f vPos = mpInit->mpPlayer->GetCharacterBody()->GetPosition();
-				cSoundEntity *pSound = mpInit->mpGame->GetScene()->GetWorld3D()->CreateSoundEntity("Taunt","interact_homer",true);
-                if(pSound)
-				{
-					pSound->SetPosition(vPos);
-				}*/
-			}
+			//if(mpInput->BecameTriggerd("Hit"))
+			//{
+			//	mpInit->mpPlayer->Damage(20,ePlayerDamageType_BloodSplash);
+			//}
+			//if(mpInput->BecameTriggerd("Log"))
+			//{
+			//	mpInit->mpGame->GetPhysics()->SetDebugLog(!mpInit->mpGame->GetPhysics()->GetDebugLog());
+			//}
+			//if(mpInput->BecameTriggerd("Taunt"))
+			//{
+//				for(int i=0;i<10; ++i)
+	//				mpInit->mpGame->GetSound()->GetSoundHandler()->PlayGui("gui_notebook_add_note1",
+			//															false,0.01f);
+				//cVector3f vPos = mpInit->mpPlayer->GetCharacterBody()->GetPosition();
+				//cSoundEntity *pSound = mpInit->mpGame->GetScene()->GetWorld3D()->CreateSoundEntity("Taunt","interact_homer",true);
+                //if(pSound)
+				//{
+				//	pSound->SetPosition(vPos);
+				//}
+		//	}
 			
 			if(mpPlayer->IsActive() || mpPlayer->GetState() == ePlayerState_Message)
 			{
 				if(mpPlayer->IsActive())
 				{
-					if(mpInput->BecameTriggerd("Inventory"))
+					if(mActionInventory.BecameTriggered())
 					{
 						mpPlayer->StartInventory();
 					}
 
-					if(mpInput->BecameTriggerd("NoteBook"))
+					if(mActionNotebook.BecameTriggered())
 					{
 						mpInit->mpNotebook->SetActive(true);
 					}
-					if(mpInput->BecameTriggerd("PersonalNotes"))
+					if(mActionPersonalNotes.BecameTriggered())
 					{
 						mpInit->mpNotebook->SetActive(true);
 						mpInit->mpNotebook->GetStateMachine()->ChangeState(eNotebookState_TaskList);
 					}
 	                
-					if(mpInput->BecameTriggerd("Flashlight"))
+					if(mActionFlashlight.BecameTriggered())
 					{
 						mpPlayer->StartFlashLightButton();
 					}
 
-					if(mpInput->BecameTriggerd("GlowStick"))
+					if(mActionGlowStick.BecameTriggered())
 					{
 						mpPlayer->StartGlowStickButton();
 					}
 
 					///////////////////////////////////////
 					// Player Movement ////////////////////
-					if(mpInput->IsTriggerd("Forward"))
-					{
-						mpPlayer->MoveForwards(1,afTimeStep);
-					}
-					else if(mpInput->IsTriggerd("Backward"))
-					{
-						mpPlayer->MoveForwards(-1,afTimeStep);
-					}
-					else
-					{
-						mpPlayer->MoveForwards(0,afTimeStep);
-					}
 
+					float mul = mActionMoveY.TriggeredAmount();
+					if(mActionForward.IsTriggered())
+						mul += 1;
+					if(mActionBackward.IsTriggered())
+						mul -= 1;
 
-					if(mpInput->IsTriggerd("Left"))
-					{
-						mpPlayer->MoveSideways(-1,afTimeStep);
-					}
-					else if(mpInput->IsTriggerd("Right"))
-					{
-						mpPlayer->MoveSideways(1,afTimeStep);
-					}
-					else
-					{
-						mpPlayer->MoveSideways(0,afTimeStep);
-					}
+					mpPlayer->MoveForwards(float_clamp(mul),afTimeStep);
 
-					if(mpInput->IsTriggerd("LeanLeft"))
-					{
-						mpPlayer->Lean(-1,afTimeStep);
-					}
-					else if(mpInput->IsTriggerd("LeanRight"))
-					{
-						mpPlayer->Lean(1,afTimeStep);
-					}
+					mul = mActionMoveX.TriggeredAmount();
+					if(mActionLeft.IsTriggered())
+						mul -= 1;
+					if(mActionBackward.IsTriggered())
+						mul += 1;
+
+					mpPlayer->MoveSideways(float_clamp(mul),afTimeStep);
+
+					mul = mActionLean.TriggeredAmount();
+					if(mActionLeanLeft.IsTriggered())
+						mul -= 1;
+					if(mActionLeanRight.IsTriggered())
+						mul += 1;
+
+					mpPlayer->Lean(float_clamp(mul), afTimeStep);
 					
 
-					if(mpInput->BecameTriggerd("Jump"))
+					if(mActionJump.BecameTriggered())
 					{
 						mpPlayer->Jump();
 					}
-					if(mpInput->IsTriggerd("Jump"))
+					if(mActionJump.IsTriggered())
 					{
 						mpPlayer->SetJumpButtonDown(true);
 					}
 					
-					if(mpInput->BecameTriggerd("Run"))
+					if(mActionRun.BecameTriggered())
 					{
 						mpPlayer->StartRun();
 					}
-					if(mpInput->WasTriggerd("Run"))
+					if(mActionRun.WasTriggered())
 					{
 						mpPlayer->StopRun();	
 					}
 
-					if(mpInput->BecameTriggerd("Crouch"))
+					if(mActionCrouch.BecameTriggered())
 					{
 						mpPlayer->StartCrouch();
 					}
 					if(GetToggleCrouch())
 					{
-						if(mpInput->WasTriggerd("Crouch"))	mpPlayer->StopCrouch();	
+						if(mActionCrouch.WasTriggered())	mpPlayer->StopCrouch();	
 					}
 					else
 					{
-						if(mpInput->IsTriggerd("Crouch")==false) mpPlayer->StopCrouch();	
+						if(!mActionCrouch.IsTriggered()) mpPlayer->StopCrouch();	
 					}
 
-					if(mpInput->BecameTriggerd("InteractMode"))
+					if(mActionInteractMode.BecameTriggered())
 					{
 						if(mpInit->mbHasHaptics==false)
 						{
@@ -703,11 +867,28 @@ void cButtonHandler::Update(float afTimeStep)
 							//DO nothing for the time being.
 						}
 					}
+
+					if(mActionLookUp.IsTriggered())
+					{
+						mpPlayer->AddPitch(-0.05f);
+					}
+					if(mActionLookDown.IsTriggered())
+					{
+						mpPlayer->AddPitch(0.05f);
+					}
+					if(mActionLookLeft.IsTriggered())
+					{
+						mpPlayer->AddYaw(-0.05f);
+					}
+					if(mActionLookRight.IsTriggered())
+					{
+						mpPlayer->AddYaw(0.05f);
+					}
 					
 					//Get the mouse pos and convert it to 0 - 1
 					if(mpInit->mbHasHaptics==false)
 					{
-						cVector2f vRel = mpInput->GetMouse()->GetRelPosition();
+						cVector2f vRel = mpInput->GetMouse()->GetRelPosition() + cVector2f(mActionLookX.TriggeredAmount(), mActionLookY.TriggeredAmount());
 						vRel /= mpLowLevelGraphics->GetVirtualSize();
 
 						mpPlayer->AddYaw(vRel.x * mfMouseSensitivity);
@@ -717,43 +898,43 @@ void cButtonHandler::Update(float afTimeStep)
 
 				///////////////////////////////////////
 				// Player Interaction /////////////////
-				if(	mpInput->BecameTriggerd("Interact"))
+				if(mActionInteract.BecameTriggered())
 				{
 					mpPlayer->StartInteract();
-					mpInput->BecameTriggerd("LeftClick");
+					mActionClick.Trigger();
 				}
-				if(	mpInput->WasTriggerd("Interact"))
+				if(mActionInteract.WasTriggered())
 				{
 					mpPlayer->StopInteract();
 				}
-				if(	mpInput->BecameTriggerd("Examine"))
+				if(mActionExamine.BecameTriggered())
 				{
 					mpPlayer->StartExamine();
 				}
-				if(mpInput->WasTriggerd("Examine"))
+				if(mActionExamine.WasTriggered())
 				{
 					mpPlayer->StopExamine();
 				}
-				if(mpInput->BecameTriggerd("Holster"))
+				if(mActionHolster.BecameTriggered())
 				{
 					mpPlayer->StartHolster();
 				}
 
 				if(mpPlayer->IsActive())
 				{
-					if(mpInput->BecameTriggerd("One")) mpPlayer->StartInventoryShortCut(0);
-					if(mpInput->BecameTriggerd("Two")) mpPlayer->StartInventoryShortCut(1);
-					if(mpInput->BecameTriggerd("Three")) mpPlayer->StartInventoryShortCut(2);
-					if(mpInput->BecameTriggerd("Four")) mpPlayer->StartInventoryShortCut(3);
-					if(mpInput->BecameTriggerd("Five")) mpPlayer->StartInventoryShortCut(4);
-					if(mpInput->BecameTriggerd("Six")) mpPlayer->StartInventoryShortCut(5);
-					if(mpInput->BecameTriggerd("Seven")) mpPlayer->StartInventoryShortCut(6);
-					if(mpInput->BecameTriggerd("Eight")) mpPlayer->StartInventoryShortCut(7);
-					if(mpInput->BecameTriggerd("Nine")) mpPlayer->StartInventoryShortCut(8);
+					if(mActionOne.BecameTriggered()) mpPlayer->StartInventoryShortCut(0);
+					if(mActionTwo.BecameTriggered()) mpPlayer->StartInventoryShortCut(1);
+					if(mActionThree.BecameTriggered()) mpPlayer->StartInventoryShortCut(2);
+					if(mActionFour.BecameTriggered()) mpPlayer->StartInventoryShortCut(3);
+					if(mActionFive.BecameTriggered()) mpPlayer->StartInventoryShortCut(4);
+					if(mActionSix.BecameTriggered()) mpPlayer->StartInventoryShortCut(5);
+					if(mActionSeven.BecameTriggered()) mpPlayer->StartInventoryShortCut(6);
+					if(mActionEight.BecameTriggered()) mpPlayer->StartInventoryShortCut(7);
+					if(mActionNine.BecameTriggered()) mpPlayer->StartInventoryShortCut(8);
 				}
 			}
 		}
-		if(mpInput->IsTriggerd("Jump")==false || bPlayerStateIsActive==false)
+		if(!mActionJump.IsTriggered() || bPlayerStateIsActive==false)
 		{
 			mpPlayer->SetJumpButtonDown(false);
 		}
@@ -777,7 +958,7 @@ void cButtonHandler::OnExit()
 	mpInit->mpConfig->SetBool("Controls","InvertMouseY",mbInvertMouseY);
 	mpInit->mpConfig->SetBool("Controls","ToggleCrouch",mbToggleCrouch);
 
-	// SAVE KEYS
+	/*// SAVE KEYS
 	Log("  Saving keys\n");
 	for(int i=0; i< mlNumOfActions; ++i)
 	{
@@ -791,14 +972,14 @@ void cButtonHandler::OnExit()
 		
 		mpInit->mpConfig->SetString("Keys",gvDefaultActions[i].msName+"_Type",sType);
 		mpInit->mpConfig->SetString("Keys",gvDefaultActions[i].msName+"_Val",sVal);
-	}
+	}*/
 }
 
 //-----------------------------------------------------------------------
 
 void cButtonHandler::SetDefaultKeys()
 {
-	cButtonHandlerAction *pBHAction = &gvDefaultActions[0];
+	/*cButtonHandlerAction *pBHAction = &gvDefaultActions[0];
 	while(pBHAction->msName != "")
 	{
 		tString sName = pBHAction->msName;
@@ -809,8 +990,8 @@ void cButtonHandler::SetDefaultKeys()
 		
 		if(pAction)
 		{
-			mpInput->DestroyAction(sName);
-			mpInput->AddAction(pAction);
+			//mpInput->DestroyAction(sName);
+			//mpInput->AddAction(pAction);
 		}
 		else
 		{
@@ -819,7 +1000,7 @@ void cButtonHandler::SetDefaultKeys()
 		}
 
 		++pBHAction;
-	}
+	}*/
 }
 
 //-----------------------------------------------------------------------
@@ -833,9 +1014,9 @@ tString cButtonHandler::GetActionName(const tString &asInputName,const tString &
 		tString sType = pBHAction->msType;
 		tString sVal = cString::ToString(pBHAction->mlVal);
 
-		iAction *pAction = mpInput->GetAction(sName);
+		//iAction *pAction = mpInput->GetAction(sName);
 		
-		if(asSkipAction != sName && pAction && pAction->GetInputName() == asInputName) return sName;
+		//if(asSkipAction != sName && pAction && pAction->GetInputName() == asInputName) return sName;
 
 		//If at last player action, skip the rest.
 		if(sName == gsLastPlayerAction) return "";
@@ -854,7 +1035,7 @@ tString cButtonHandler::GetActionName(const tString &asInputName,const tString &
 
 //-----------------------------------------------------------------------
 
-iAction* cButtonHandler::ActionFromTypeAndVal(const tString& asName,const tString& asType, const tString& asVal)
+/*iAction* cButtonHandler::ActionFromTypeAndVal(const tString& asName,const tString& asType, const tString& asVal)
 {
 	//Log("Action %s from %s\n",asName.c_str(),asType.c_str());
 
@@ -915,6 +1096,6 @@ void cButtonHandler::TypeAndValFromAction(iAction *apAction, tString *apType, tS
 		*apVal = "";
 		*apType = "";
 	}
-}
+}*/
 
 //-----------------------------------------------------------------------

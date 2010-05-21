@@ -22,6 +22,7 @@
 #include "StdAfx.h"
 
 #include "GameTypes.h"
+#include "input/AxisAction.h"
 
 using namespace hpl;
 
@@ -54,9 +55,10 @@ public:
 	float mfMouseSensitivity;
 	bool mbInvertMouseY;
 	bool mbToggleCrouch;
+
 private:
-	iAction * ActionFromTypeAndVal(const tString& asName,const tString& asType, const tString& asVal);
-	void TypeAndValFromAction(iAction *apAction, tString *apType, tString *apVal);
+	//cAction * ActionFromTypeAndVal(const tString& asName,const tString& asType, const tString& asVal);
+	//void TypeAndValFromAction(cAction *apAction, tString *apType, tString *apVal);
 	
 	int mlNumOfActions;
 
@@ -69,6 +71,67 @@ private:
 	cPlayer *mpPlayer;
 
 	eButtonHandlerState mState;
+
+public:
+	// Actions
+	cAction mActionQuit;
+
+	cAction mActionForward;
+	cAction mActionBackward;
+
+	cAction mActionLeft;
+	cAction mActionRight;
+	cAction mActionLeanLeft;
+	cAction mActionLeanRight;
+	
+	cAction mActionLookUp;
+	cAction mActionLookDown;
+	cAction mActionLookLeft;
+	cAction mActionLookRight;
+	
+	cAxisAction mActionLookX;
+	cAxisAction mActionLookY;
+	cAxisAction mActionMoveX;
+	cAxisAction mActionMoveY;
+	cAxisAction mActionLean;
+
+	cAction mActionRun;
+	cAction mActionJump;
+	cAction mActionCrouch;
+	cAction mActionInteractMode;
+	cAction mActionLookMode;
+	cAction mActionHolster;
+	cAction mActionExamine;
+	cAction mActionInteract;
+	cAction mActionInventory;
+	cAction mActionNotebook;
+	cAction mActionPersonalNotes;
+	cAction mActionFlashlight;
+	cAction mActionGlowStick;
+	cAction mActionEnter;
+	cAction mActionEscape;
+
+	cAction mActionClick;
+	cAction mActionRightClick;
+	cAction mActionScrollUp;
+	cAction mActionScrollDown;
+
+	cAction mActionOne;
+	cAction mActionTwo;
+	cAction mActionThree;
+	cAction mActionFour;
+	cAction mActionFive;
+	cAction mActionSix;
+	cAction mActionSeven;
+	cAction mActionEight;
+	cAction mActionNine;
+
+	cAction mActionResetGame;
+	cAction mActionSaveGame;
+	cAction mActionLoadGame;
+
+	cAction mActionScreenshot;
+	cAction mActionPrintLog;
 };
 
 

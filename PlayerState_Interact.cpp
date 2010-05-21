@@ -65,12 +65,13 @@ void cPlayerState_Grab::OnUpdate(float afTimeStep)
 	
 	//cVector3f vToCharDir =
 	
-	if(pInput->IsTriggerd("WheelUp"))
+	// TODO: Fix this, it was fun. ;_; -- Ricky26
+	if(mpInit->mpButtonHandler->mActionScrollUp.IsTriggered())
 	{
 		if(mfGrabDist < mpPlayer->mfCurrentMaxInteractDist*0.8f)
 			mfGrabDist += 0.1f;
 	}
-	if(pInput->IsTriggerd("WheelDown"))
+	if(mpInit->mpButtonHandler->mActionScrollDown.IsTriggered())
 	{
 		if(mfGrabDist > mpPlayer->GetSize().x/2.0f + 0.25f)
 		{
